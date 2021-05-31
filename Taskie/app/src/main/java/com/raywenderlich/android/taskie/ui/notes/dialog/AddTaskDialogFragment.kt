@@ -126,12 +126,12 @@ class AddTaskDialogFragment : DialogFragment() {
                 activity?.runOnUiThread {
                     if (task != null) {
                         onTaskAdded(task)
+                        clearUi()
                     } else if (error != null) {
                         onTaskAddFailed()
                     }
                 }
             }
-            clearUi()
         }
     }
 
