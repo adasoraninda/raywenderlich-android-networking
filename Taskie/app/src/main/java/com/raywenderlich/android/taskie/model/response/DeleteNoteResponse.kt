@@ -4,6 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class CompleteNoteResponse(
-    @SerialName("message")val message: String?
+class DeleteNoteResponse(
+    @SerialName("message") val message: String
 )

@@ -34,12 +34,14 @@
 
 package com.raywenderlich.android.taskie.model.response
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 /**
  * Holds the user data, to display on the profile screen.
  */
+@Serializable
 class UserProfileResponse(
-    @field:Json(name = "email") val email: String?,
-    @field:Json(name = "name") val name: String?
+    @SerialName("email")val email: String?,
+    @SerialName("name")val name: String?
 )

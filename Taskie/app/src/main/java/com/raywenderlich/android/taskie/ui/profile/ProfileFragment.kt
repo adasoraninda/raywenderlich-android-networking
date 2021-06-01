@@ -35,6 +35,7 @@
 package com.raywenderlich.android.taskie.ui.profile
 
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -42,7 +43,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.raywenderlich.android.taskie.App
 import com.raywenderlich.android.taskie.R
-import com.raywenderlich.android.taskie.networking.RemoteApi
+import com.raywenderlich.android.taskie.model.Result
+import com.raywenderlich.android.taskie.networking.NetworkStatusChecker
 import com.raywenderlich.android.taskie.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_profile.*
 
@@ -51,31 +53,40 @@ import kotlinx.android.synthetic.main.fragment_profile.*
  */
 class ProfileFragment : Fragment() {
 
-  private val remoteApi = App.remoteApi
+    private val remoteApi = App.remoteApi
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-      savedInstanceState: Bundle?): View? {
-    return inflater.inflate(R.layout.fragment_profile, container, false)
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    initUi()
-
-    remoteApi.getUserProfile { userProfile, _ ->
-      if (userProfile != null) {
-        userEmail.text = userProfile.email
-        userName.text = getString(R.string.user_name_text, userProfile.name)
-        numberOfNotes.text = getString(R.string.number_of_notes_text, userProfile.numberOfNotes)
-      }
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
     }
-  }
 
-  private fun initUi() {
-    logOut.setOnClickListener {
-      App.saveToken("")
-      startActivity(Intent(activity, LoginActivity::class.java))
-      activity?.finish()
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_profile, container, false)
     }
-  }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initUi()
+        networkStatusChecker.performIfConnectedToInternet {
+            remoteApi.getUserProfile { result ->
+                if (result is Result.Success) {
+                    val userProfile = result.data
+                    userEmail.text = userProfile.email
+                    userName.text = getString(R.string.user_name_text, userProfile.name)
+                    numberOfNotes.text =
+                        getString(R.string.number_of_notes_text, userProfile.numberOfNotes)
+                }
+            }
+        }
+    }
+
+    private fun initUi() {
+        logOut.setOnClickListener {
+            App.saveToken("")
+            startActivity(Intent(activity, LoginActivity::class.java))
+            activity?.finish()
+        }
+    }
 }

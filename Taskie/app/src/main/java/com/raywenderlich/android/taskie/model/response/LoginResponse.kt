@@ -34,8 +34,10 @@
 
 package com.raywenderlich.android.taskie.model.response
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class LoginResponse(
-    @field:Json(name = "token") val token: String? = ""
+    @SerialName("token")val token: String? = ""
 )
