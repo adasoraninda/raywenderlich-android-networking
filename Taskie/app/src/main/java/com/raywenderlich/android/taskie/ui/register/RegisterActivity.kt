@@ -37,10 +37,10 @@ package com.raywenderlich.android.taskie.ui.register
 import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.raywenderlich.android.taskie.App
 import com.raywenderlich.android.taskie.R
 import com.raywenderlich.android.taskie.model.request.UserDataRequest
 import com.raywenderlich.android.taskie.networking.NetworkStatusChecker
-import com.raywenderlich.android.taskie.networking.RemoteApi
 import com.raywenderlich.android.taskie.utils.gone
 import com.raywenderlich.android.taskie.utils.toast
 import com.raywenderlich.android.taskie.utils.visible
@@ -51,50 +51,56 @@ import kotlinx.android.synthetic.main.activity_register.*
  */
 class RegisterActivity : AppCompatActivity() {
 
-  private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
-  private val networkStatusChecker by lazy {
-    NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_register)
-    initUi()
-  }
-
-  private fun initUi() {
-    register.setOnClickListener {
-      processData(nameInput.text.toString(), emailInput.text.toString(),
-          passwordInput.text.toString())
+    private val networkStatusChecker by lazy {
+        NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
     }
-  }
 
-  private fun processData(username: String, email: String, password: String) {
-    if (username.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
-      networkStatusChecker.performIfConnectedToInternet {
-        remoteApi.registerUser(UserDataRequest(email, password, username)) { message, error ->
-          runOnUiThread {
-            if (message != null) {
-              toast(message)
-              onRegisterSuccess()
-            } else if (error != null) {
-              onRegisterError()
-            }
-          }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_register)
+        initUi()
+    }
+
+    private fun initUi() {
+        register.setOnClickListener {
+            processData(
+                nameInput.text.toString(), emailInput.text.toString(),
+                passwordInput.text.toString()
+            )
         }
-      }
-    } else {
-      onRegisterError()
     }
-  }
 
-  private fun onRegisterSuccess() {
-    errorText.gone()
-    finish()
-  }
+    private fun processData(username: String, email: String, password: String) {
+        if (username.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
+            networkStatusChecker.performIfConnectedToInternet {
+                remoteApi.registerUser(
+                    UserDataRequest(
+                        email,
+                        password,
+                        username
+                    )
+                ) { message, error ->
+                    if (message != null) {
+                        toast(message)
+                        onRegisterSuccess()
+                    } else if (error != null) {
+                        onRegisterError()
+                    }
+                }
+            }
+        } else {
+            onRegisterError()
+        }
+    }
 
-  private fun onRegisterError() {
-    errorText.visible()
-  }
+    private fun onRegisterSuccess() {
+        errorText.gone()
+        finish()
+    }
+
+    private fun onRegisterError() {
+        errorText.visible()
+    }
 }

@@ -54,7 +54,7 @@ import kotlinx.android.synthetic.main.activity_login.*
  */
 class LoginActivity : AppCompatActivity() {
 
-    private val remoteApi = RemoteApi()
+    private val remoteApi = App.remoteApi
 
     private val networkStatusChecker by lazy {
         NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
@@ -87,13 +87,11 @@ class LoginActivity : AppCompatActivity() {
     private fun logUserIn(userDataRequest: UserDataRequest) {
         networkStatusChecker.performIfConnectedToInternet {
             remoteApi.loginUser(userDataRequest) { token: String?, throwable: Throwable? ->
-                runOnUiThread {
                     if (token != null && token.isNotBlank()) {
                         onLoginSuccess(token)
                     } else if (throwable != null) {
                         showLoginError()
                     }
-                }
             }
         }
     }
