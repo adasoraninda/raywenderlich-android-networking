@@ -5,5 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class CompleteNoteResponse(
-    @SerialName("message")val message: String?
+    @SerialName("message")val message: String
 )

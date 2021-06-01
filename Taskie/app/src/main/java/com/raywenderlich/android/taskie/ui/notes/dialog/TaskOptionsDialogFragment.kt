@@ -46,6 +46,9 @@ import com.raywenderlich.android.taskie.R
 import com.raywenderlich.android.taskie.model.Result
 import com.raywenderlich.android.taskie.networking.NetworkStatusChecker
 import kotlinx.android.synthetic.main.fragment_dialog_task_options.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Displays the options to delete or complete a task.
@@ -108,7 +111,9 @@ class TaskOptionsDialogFragment : DialogFragment() {
 
         deleteTask.setOnClickListener {
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.deleteTask(taskId) { result ->
+                GlobalScope.launch(Dispatchers.Main) {
+                    val result = remoteApi.deleteTask(taskId)
+
                     if (result is Result.Success) {
                         taskOptionSelectedListener?.onTaskDeleted(taskId)
                     }
@@ -119,7 +124,9 @@ class TaskOptionsDialogFragment : DialogFragment() {
 
         completeTask.setOnClickListener {
             networkStatusChecker.performIfConnectedToInternet {
-                remoteApi.completeTask(taskId) { result ->
+                GlobalScope.launch(Dispatchers.Main) {
+                    val result = remoteApi.completeTask(taskId)
+
                     if (result is Result.Success) {
                         taskOptionSelectedListener?.onTaskCompleted(taskId)
                     }

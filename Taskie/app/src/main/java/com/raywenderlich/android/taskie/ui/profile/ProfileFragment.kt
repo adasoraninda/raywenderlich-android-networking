@@ -47,6 +47,9 @@ import com.raywenderlich.android.taskie.model.Result
 import com.raywenderlich.android.taskie.networking.NetworkStatusChecker
 import com.raywenderlich.android.taskie.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Displays the user profile information.
@@ -70,7 +73,9 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initUi()
         networkStatusChecker.performIfConnectedToInternet {
-            remoteApi.getUserProfile { result ->
+            GlobalScope.launch(Dispatchers.Main) {
+                val result = remoteApi.getUserProfile()
+
                 if (result is Result.Success) {
                     val userProfile = result.data
                     userEmail.text = userProfile.email
