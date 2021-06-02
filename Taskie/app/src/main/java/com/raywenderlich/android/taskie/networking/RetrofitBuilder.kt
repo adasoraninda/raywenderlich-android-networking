@@ -46,7 +46,10 @@ fun buildRetrofit(): Retrofit {
     return Retrofit.Builder()
         .client(buildClient())
         .baseUrl(BASE_URL)
-        .addConverterFactory(Json.asConverterFactory(contentType))
+        .addConverterFactory(Json{
+            ignoreUnknownKeys = true
+            isLenient = true
+        }.asConverterFactory(contentType))
         .build()
 }
 
